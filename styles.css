@@ -2,7 +2,7 @@
     --primary-color: #ffffff;
     --secondary-color: #f0f0f0;
     --text-color: #e0e0e0;
-    --accent-color: #8a6eff;
+    --accent-color: #ffffff;
     --background-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
     --background-light: rgba(255, 255, 255, 0.05);
     --footer-bg: #0a0a0a;
@@ -17,7 +17,7 @@
     --primary-color: #333333;
     --secondary-color: #444444;
     --text-color: #333333;
-    --accent-color: #7b68ee;
+    --accent-color: #000000;
     --background-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
     --background-light: rgba(0, 0, 0, 0.03);
     --footer-bg: #e5e5e5;
@@ -35,33 +35,61 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom Scrollbars */
+/* Scrollbar Base Styles */
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
+    width: 12px;  /* Thicker scrollbar */
+    height: 12px;
+  }
+  
+  /* Track (background) */
+  ::-webkit-scrollbar-track {
+    border-radius: 6px;
+  }
+  
+  /* Thumb (handle) */
+  ::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  
+  /* Dark Mode (White Track + Black Thumb) */
+  [data-theme="dark"] ::-webkit-scrollbar-track {
+    background: white;  /* Solid white track */
+  }
+  
+  [data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: black;  /* Solid black thumb */
+    border: 3px solid white;  /* White border around black thumb */
+  }
+  
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #333;  /* Slightly lighter black on hover */
+  }
+  
+  /* Light Mode (Black Track + White Thumb) */
+  [data-theme="light"] ::-webkit-scrollbar-track {
+    background: rgb(255, 255, 255);  /* Solid black track */
+  }
+  
+  [data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: white;  /* Solid white thumb */
+    border: 3px solid rgb(255, 255, 255);  /* Black border around white thumb */
+  }
+  
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: #ddd;  /* Slightly darker white on hover */
+  }
 
-::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 10px;
-    border: 1px solid var(--scrollbar-track);
-    transition: background 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-color);
-}
-
-/* Firefox Scrollbars */
+/* Firefox Support */
 html {
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-}
+    scrollbar-color: black white;  /* Default: dark mode (thumb, track) */
+  }
+  
+  [data-theme="light"] {
+    scrollbar-color: white black;  /* Light mode (thumb, track) */
+  }
 
 body {
     font-family: 'Federo', sans-serif;
@@ -102,6 +130,19 @@ body {
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
+}
+
+.coming-soon {
+    text-align: center;
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    margin-top: 30px;
+    font-style: italic;
+}
+
+.error {
+    color: #ff6b6b;
+    text-align: center;
 }
 
 /* Navigation Buttons */
@@ -156,16 +197,29 @@ body {
 
 #chapter-title {
     font-family: "Limelight", sans-serif;
+    font-weight: bold;
     font-size: 1.8rem;
     margin-bottom: 20px;
     color: var(--primary-color);
     padding-bottom: 10px;
     border-bottom: 1px solid var(--title-underline);
 }
-
 #novel-text {
     font-size: 1.1rem;
     line-height: 1.9;
+    color: var(--text-color); /* Default text color */
+    font-style: normal; /* Reset italics */
+}
+
+/* Style Markdown-generated elements */
+#novel-text em {
+    font-style: italic;
+    color: var(--accent-color); /* Only make actual emphasized text accent color */
+}
+
+#novel-text strong {
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
 #novel-text p {
@@ -173,6 +227,31 @@ body {
     text-align: justify;
 }
 
+/* Headings */
+#novel-text h1, 
+#novel-text h2, 
+#novel-text h3 {
+    font-family: "Limelight", sans-serif;
+    color: var(--primary-color);
+    margin: 1em 0;
+    font-weight: bold;
+}
+
+/* Lists */
+#novel-text ul, 
+#novel-text ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+/* Blockquotes */
+#novel-text blockquote {
+    border-left: 3px solid var(--accent-color);
+    padding-left: 15px;
+    margin: 15px 0;
+    color: var(--text-color);
+    font-style: italic;
+}
 /* Footer */
 footer {
     background-color: var(--footer-bg);
@@ -230,7 +309,7 @@ footer {
     display: inline-block;
     height: 24px;
     position: relative;
-    width: 50px;
+    width: 60px;
 }
 
 .theme-switch input {
@@ -254,7 +333,7 @@ footer {
     bottom: 3px;
     content: "";
     height: 18px;
-    left: 4px;
+    left: 7px;
     position: absolute;
     transition: .4s;
     width: 18px;
@@ -262,12 +341,13 @@ footer {
 }
 
 input:checked + .slider {
-    background-color: var(--accent-color);
-}
-
-input:checked + .slider:before {
-    transform: translateX(24px);
-}
+    background-color: #ccc; /* Keep gray background even in light mode */
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(30px);
+    background-color: black; /* Black ball in light mode */
+  }
 
 #theme-text {
     font-family: "Rubik Doodle Shadow", system-ui;
