@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set initial loading state
         chapterElements.title.classList.add('loading-blink');
-        chapterElements.content.innerHTML = '<p class="loading-blink">Loading content...</p>';
+        chapterElements.content.innerHTML = '<p class="loading-blink">Here you go!...</p>';
         
         loadChapter(1);
         
