@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configuration
     const config = {
-        totalChapters: 100, // Update with your total chapter count
         chapterFolder: 'chapters/', // Folder containing your txt files
         fadeDuration: 500 // Transition time in ms
     };
@@ -51,9 +50,52 @@ document.addEventListener('DOMContentLoaded', function() {
     let scrollPosition = 0;
     let isScrolling = false;
 
+    // Function to detect available chapters
+    async function detectAvailableChapters() {
+        let chapterCount = 0;
+        let chapterNumbers = [];
+        
+        // We'll check up to 1000 chapters (adjust if needed)
+        for (let i = 1; i <= 1000; i++) {
+            try {
+                const response = await fetch(`${config.chapterFolder}${i}.txt`);
+                if (response.ok) {
+                    chapterCount = i;
+                    chapterNumbers.push(i);
+                } else {
+                    break;
+                }
+            } catch (error) {
+                break;
+            }
+        }
+        
+        return {
+            count: chapterCount,
+            numbers: chapterNumbers
+        };
+    }
+
     // Core Functions
     async function loadChapter(chapterNum) {
-        if (chapterNum < 1 || chapterNum > config.totalChapters) return;
+        if (chapterNum < 1) return;
+        
+        // Handle case where no chapters exist
+        if (config.totalChapters === 0) {
+            chapterElements.title.textContent = 'No Chapters Available';
+            chapterElements.content.innerHTML = '<p class="coming-soon">Check back later for new content!</p>';
+            updateNavButtons();
+            return;
+        }
+        
+        // Special case for when we're past the last chapter
+        if (chapterNum > config.totalChapters) {
+            chapterElements.title.textContent = 'New Chapter Coming Soon';
+            chapterElements.content.innerHTML = '<p class="coming-soon">Story in progress</p>';
+            currentChapter = config.totalChapters;
+            updateNavButtons();
+            return;
+        }
         
         try {
             // Set loading state
@@ -117,6 +159,12 @@ document.addEventListener('DOMContentLoaded', function() {
         [navButtons.nextTop, navButtons.nextBottom].forEach(btn => {
             btn.style.display = isLast ? 'none' : 'flex';
         });
+        
+        // If we're at the last chapter, update the UI
+        if (isLast && config.totalChapters > 0) {
+            chapterElements.title.textContent = 'New Chapter Coming Soon';
+            chapterElements.content.innerHTML = '<p class="coming-soon">Story in progress</p>';
+        }
     }
 
     // Scroll-based fade effects
@@ -181,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupNavigation() {
         const handleNav = (direction) => {
             const newChapter = currentChapter + direction;
-            if (newChapter >= 1 && newChapter <= config.totalChapters) {
+            if (newChapter >= 1) {  // Removed upper limit check (handled in loadChapter)
                 loadChapter(newChapter);
             }
         };
@@ -198,8 +246,8 @@ document.addEventListener('DOMContentLoaded', function() {
         chapterElements.overlay.classList.remove('active');
     }
 
-    async function initChapterList() {
-        for (let i = 1; i <= config.totalChapters; i++) {
+    async function initChapterList(chapterNumbers) {
+        for (const i of chapterNumbers) {
             try {
                 const response = await fetch(`${config.chapterFolder}${i}.txt`);
                 if (response.ok) {
@@ -222,9 +270,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     async function init() {
+        // Detect available chapters first
+        const chapters = await detectAvailableChapters();
+        config.totalChapters = chapters.count;
+        
+        // Now proceed with the rest of initialization
         setupNavigation();
         setupScrollEffects();
-        await initChapterList();
+        await initChapterList(chapters.numbers);
         
         // Set initial loading state
         chapterElements.title.classList.add('loading-blink');
