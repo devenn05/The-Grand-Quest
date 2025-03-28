@@ -7,6 +7,10 @@
     --background-light: rgba(255, 255, 255, 0.05);
     --footer-bg: #0a0a0a;
     --title-underline: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb: #ffffff;
+    --scrollbar-track: rgba(255, 255, 255, 0.1);
+    --slider-bg: #444;
+    --slider-handle: #fff;
 }
 
 [data-theme="light"] {
@@ -18,6 +22,10 @@
     --background-light: rgba(0, 0, 0, 0.03);
     --footer-bg: #e5e5e5;
     --title-underline: rgba(0, 0, 0, 0.1);
+    --scrollbar-thumb: #000000;
+    --scrollbar-track: rgba(0, 0, 0, 0.15);
+    --slider-bg: #ccc;
+    --slider-handle: #000;
 }
 
 * {
@@ -25,6 +33,34 @@
     padding: 0;
     box-sizing: border-box;
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+    border: 1px solid var(--scrollbar-track);
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+/* Firefox Scrollbars */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 body {
@@ -53,81 +89,6 @@ body {
     color: var(--primary-color);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 1px;
-}
-
-/* Custom Select Styles */
-.custom-select {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto 30px;
-    font-family: "Federo", sans-serif;
-    z-index: 10;
-}
-
-.select-header {
-    padding: 15px 20px;
-    background: var(--background-light);
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.select-header:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.current-selection {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-}
-
-.dropdown-icon {
-    transition: transform 0.3s ease;
-    color: var(--accent-color);
-}
-
-.select-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--background-light);
-    border-radius: 0 0 10px 10px;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease, opacity 0.3s ease;
-    opacity: 0;
-    z-index: 100;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.select-options.active {
-    max-height: 300px;
-    overflow-y: auto;
-    opacity: 1;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-top: none;
-}
-
-.option {
-    padding: 12px 20px;
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.option:hover {
-    background: var(--accent-color);
-    color: white;
-    transform: translateX(5px);
 }
 
 /* Navigation Buttons */
@@ -264,7 +225,7 @@ footer {
 }
 
 .slider {
-    background-color: #444;
+    background-color: var(--slider-bg);
     bottom: 0;
     cursor: pointer;
     left: 0;
@@ -276,7 +237,7 @@ footer {
 }
 
 .slider:before {
-    background-color: #fff;
+    background-color: var(--slider-handle);
     bottom: 3px;
     content: "";
     height: 18px;
@@ -299,6 +260,122 @@ input:checked + .slider:before {
     font-family: "Rubik Doodle Shadow", system-ui;
     margin-left: 8px;
     font-size: 0.9rem;
+}
+
+/* Sidebar Styles */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar-menu {
+    position: fixed;
+    top: 0;
+    left: -20%;
+    width: 20%;
+    height: 100%;
+    background: var(--footer-bg);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.sidebar-menu.active {
+    left: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h3 {
+    color: var(--primary-color);
+    font-family: "Limelight", sans-serif;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.chapter-list {
+    padding: 10px;
+}
+
+.chapter-item {
+    padding: 12px 15px;
+    color: var(--text-color);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.chapter-item:hover {
+    background: var(--accent-color);
+    color: white;
+    padding-left: 20px;
+}
+
+/* Sidebar Scrollbar */
+.sidebar-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background: var(--accent-color);
+    transform: scale(1.1);
 }
 
 /* Animations */
@@ -341,5 +418,14 @@ input:checked + .slider:before {
     .theme-switch-wrapper {
         top: 10px;
         right: 10px;
+    }
+    
+    .sidebar-menu {
+        width: 80%;
+        left: -80%;
+    }
+    
+    .sidebar-menu.active {
+        left: 0;
     }
 }

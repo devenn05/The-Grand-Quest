@@ -1,23 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
     <!-- Favicon -->
-     
     <link rel="icon" href="icons/white_bacteria.png" media="(prefers-color-scheme: light)">
     <link rel="icon" href="icons/black_bacteria.png" media="(prefers-color-scheme: dark)">
-
     <link rel="icon" href="icons/white_bacteria.png">
-  
-    <!-- For modern browsers (optional) -->
     <link rel="icon" type="image/png" sizes="32x32" href="icons/bacteria_32.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="icons/bacteria_16.ico">
-  
-    <!-- For Apple devices (optional) -->
     <link rel="apple-touch-icon" sizes="180x180" href="icons/bacteria_192.jpg">
-  
-    <!-- For Android (optional) -->
     <link rel="manifest" href="/site.webmanifest">
     
     <meta charset="UTF-8">
@@ -28,6 +18,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Arbutus&family=Boldonse&family=Federo&family=Limelight&family=Rubik+Doodle+Shadow&family=Viaoda+Libre&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="sidebar-overlay"></div>
+<div class="sidebar-menu">
+    <div class="sidebar-header">
+        <h3>Chapters</h3>
+        <button class="close-sidebar">&times;</button>
+    </div>
+    <div class="chapter-list">
+        <!-- Chapters will be added dynamically -->
+    </div>
+</div>
     <div class="theme-switch-wrapper">
         <label class="theme-switch" for="checkbox">
             <input type="checkbox" id="checkbox">
@@ -37,19 +37,10 @@
     </div>
 
     <div class="container">
+        <button class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
         <h1 class="title fade-in">The Grand Quest</h1>
-        
-        <div class="chapter-selector fade-in">
-            <div class="custom-select">
-                <div class="select-header">
-                    <span class="current-selection">Select Chapter</span>
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                </div>
-                <div class="select-options">
-                    <!-- Chapters will be added dynamically -->
-                </div>
-            </div>
-        </div>
         
         <div class="navigation fade-in">
             <button id="prev-btn" class="nav-btn">
