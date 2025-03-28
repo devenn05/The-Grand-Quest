@@ -1,524 +1,214 @@
-:root {
-    --primary-color: #ffffff;
-    --secondary-color: #f0f0f0;
-    --text-color: #e0e0e0;
-    --accent-color: #ffffff;
-    --background-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-    --background-light: rgba(255, 255, 255, 0.05);
-    --footer-bg: #0a0a0a;
-    --title-underline: rgba(255, 255, 255, 0.2);
-    --scrollbar-thumb: #ffffff;
-    --scrollbar-track: rgba(255, 255, 255, 0.1);
-    --slider-bg: #444;
-    --slider-handle: #fff;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // Theme Switcher (unchanged)
+    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+    const themeText = document.getElementById('theme-text');
 
-[data-theme="light"] {
-    --primary-color: #333333;
-    --secondary-color: #444444;
-    --text-color: #333333;
-    --accent-color: #000000;
-    --background-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-    --background-light: rgba(0, 0, 0, 0.03);
-    --footer-bg: #e5e5e5;
-    --title-underline: rgba(0, 0, 0, 0.1);
-    --scrollbar-thumb: #000000;
-    --scrollbar-track: rgba(0, 0, 0, 0.15);
-    --slider-bg: #ccc;
-    --slider-handle: #000;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Scrollbar Base Styles */
-::-webkit-scrollbar {
-    width: 12px;  /* Thicker scrollbar */
-    height: 12px;
-  }
-  
-  /* Track (background) */
-  ::-webkit-scrollbar-track {
-    border-radius: 6px;
-  }
-  
-  /* Thumb (handle) */
-  ::-webkit-scrollbar-thumb {
-    border-radius: 6px;
-    border: 3px solid transparent;
-    background-clip: content-box;
-  }
-  
-  /* Dark Mode (White Track + Black Thumb) */
-  [data-theme="dark"] ::-webkit-scrollbar-track {
-    background: white;  /* Solid white track */
-  }
-  
-  [data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: black;  /* Solid black thumb */
-    border: 3px solid white;  /* White border around black thumb */
-  }
-  
-  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: #333;  /* Slightly lighter black on hover */
-  }
-  
-  /* Light Mode (Black Track + White Thumb) */
-  [data-theme="light"] ::-webkit-scrollbar-track {
-    background: rgb(255, 255, 255);  /* Solid black track */
-  }
-  
-  [data-theme="light"] ::-webkit-scrollbar-thumb {
-    background: white;  /* Solid white thumb */
-    border: 3px solid rgb(255, 255, 255);  /* Black border around white thumb */
-  }
-  
-  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-    background: #ddd;  /* Slightly darker white on hover */
-  }
-
-/* Firefox Support */
-html {
-    scrollbar-width: thin;
-    scrollbar-color: black white;  /* Default: dark mode (thumb, track) */
-  }
-  
-  [data-theme="light"] {
-    scrollbar-color: white black;  /* Light mode (thumb, track) */
-  }
-
-body {
-    font-family: 'Federo', sans-serif;
-    line-height: 1.8;
-    color: var(--text-color);
-    background: var(--background-gradient);
-    min-height: 100vh;
-    padding: 20px;
-    position: relative;
-}
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-.title {
-    font-family: "Boldonse", system-ui;
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-    color: var(--primary-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: 1px;
-}
-
-/* Add this to your styles.css */
-.loading-blink {
-    animation: blink 1.5s infinite;
-    text-align: center;
-    margin-top: 20px;
-    color: var(--accent-color);
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.coming-soon {
-    text-align: center;
-    font-size: 1.3rem;
-    color: var(--accent-color);
-    margin-top: 30px;
-    font-style: italic;
-}
-
-.error {
-    color: #ff6b6b;
-    text-align: center;
-}
-
-/* Navigation Buttons */
-.navigation, .bottom-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin: 30px 0;
-    gap: 20px;
-}
-
-.nav-btn {
-    font-family: "Arbutus", serif;
-    padding: 15px 25px;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: none;
-    background: var(--background-light);
-    color: var(--primary-color);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.nav-btn:hover {
-    transform: scale(1.05);
-    border: 1px solid white;
-}
-
-.nav-btn:active {
-    transform: scale(0.98);
-}
-
-.nav-btn[disabled] {
-    display: none !important;
-}
-
-/* Chapter Content */
-.chapter-content {
-    margin: 40px 0;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-.chapter-content.fade-out {
-    opacity: 0;
-}
-
-#chapter-title {
-    font-family: "Limelight", sans-serif;
-    font-weight: bold;
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    color: var(--primary-color);
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--title-underline);
-}
-#novel-text {
-    font-size: 1.1rem;
-    line-height: 1.9;
-    color: var(--text-color); /* Default text color */
-    font-style: normal; /* Reset italics */
-}
-
-/* Style Markdown-generated elements */
-#novel-text em {
-    font-style: italic;
-    color: var(--accent-color); /* Only make actual emphasized text accent color */
-}
-
-#novel-text strong {
-    font-weight: bold;
-    color: var(--primary-color);
-}
-
-#novel-text p {
-    margin-bottom: 25px;
-    text-align: justify;
-}
-
-/* Headings */
-#novel-text h1, 
-#novel-text h2, 
-#novel-text h3 {
-    font-family: "Limelight", sans-serif;
-    color: var(--primary-color);
-    margin: 1em 0;
-    font-weight: bold;
-}
-
-/* Lists */
-#novel-text ul, 
-#novel-text ol {
-    margin-left: 20px;
-    margin-bottom: 20px;
-}
-
-/* Blockquotes */
-#novel-text blockquote {
-    border-left: 3px solid var(--accent-color);
-    padding-left: 15px;
-    margin: 15px 0;
-    color: var(--text-color);
-    font-style: italic;
-}
-/* Footer */
-footer {
-    background-color: var(--footer-bg);
-    padding: 40px 0;
-    margin-top: 50px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer-content {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 20px;
-    text-align: center;
-}
-
-.footer-content h3 {
-    font-family: "Viaoda Libre", serif;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-
-.social-links {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.social-links a {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.social-links a:hover {
-    color: var(--accent-color);
-    transform: translateY(-3px);
-}
-
-/* Theme Switch */
-.theme-switch-wrapper {
-    display: flex;
-    align-items: center;
-    position: fixed;
-    right: 20px;
-    top: 20px;
-    z-index: 100;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 8px 12px;
-    border-radius: 30px;
-    backdrop-filter: blur(5px);
-}
-
-.theme-switch {
-    display: inline-block;
-    height: 24px;
-    position: relative;
-    width: 60px;
-}
-
-.theme-switch input {
-    display: none;
-}
-
-.slider {
-    background-color: var(--slider-bg);
-    bottom: 0;
-    cursor: pointer;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transition: .4s;
-    border-radius: 34px;
-}
-
-.slider:before {
-    background-color: var(--slider-handle);
-    bottom: 3px;
-    content: "";
-    height: 18px;
-    left: 7px;
-    position: absolute;
-    transition: .4s;
-    width: 18px;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: #ccc; /* Keep gray background even in light mode */
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(30px);
-    background-color: black; /* Black ball in light mode */
-  }
-
-#theme-text {
-    font-family: "Rubik Doodle Shadow", system-ui;
-    margin-left: 8px;
-    font-size: 0.9rem;
-}
-
-/* Sidebar Styles */
-.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.sidebar-menu {
-    position: fixed;
-    top: 0;
-    left: -20%;
-    width: 20%;
-    height: 100%;
-    background: var(--footer-bg);
-    z-index: 1000;
-    transition: all 0.3s ease;
-    overflow-y: auto;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-}
-
-.sidebar-menu.active {
-    left: 0;
-}
-
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-header h3 {
-    color: var(--primary-color);
-    font-family: "Limelight", sans-serif;
-}
-
-.close-sidebar {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0 10px;
-}
-
-.chapter-list {
-    padding: 10px;
-}
-
-.chapter-item {
-    padding: 12px 15px;
-    color: var(--text-color);
-    cursor: pointer;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.2s ease;
-}
-
-.chapter-item:hover {
-    background: var(--accent-color);
-    color: white;
-    padding-left: 20px;
-}
-
-/* Sidebar Scrollbar */
-.sidebar-menu::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar-menu::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-}
-
-.sidebar-menu::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-}
-
-/* Menu Toggle Button */
-.menu-toggle {
-    position: fixed;
-    left: 20px;
-    top: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    backdrop-filter: blur(5px);
-    transition: all 0.3s ease;
-}
-
-.menu-toggle:hover {
-    background: var(--accent-color);
-    transform: scale(1.1);
-}
-
-/* Animations */
-.fade-in {
-    opacity: 0;
-    animation: fadeIn 1s ease-in forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.tap-effect {
-    animation: buttonTap 0.3s ease;
-}
-
-@keyframes buttonTap {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .title {
-        font-size: 2rem;
-        margin-top: 40px;
+    if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        toggleSwitch.checked = true;
+        themeText.textContent = 'Light Mode';
     }
-    
-    .navigation, .bottom-navigation {
-        flex-direction: column;
-        gap: 15px;
+
+    toggleSwitch.addEventListener('change', function(e) {
+        if (e.target.checked) {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            themeText.textContent = 'Light Mode';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeText.textContent = 'Dark Mode';
+        }
+    });
+
+    // Chapter System Elements
+    const chapterElements = {
+        title: document.getElementById('chapter-title'),
+        content: document.getElementById('novel-text'),
+        container: document.querySelector('.chapter-content'),
+        sidebar: document.querySelector('.sidebar-menu'),
+        overlay: document.querySelector('.sidebar-overlay'),
+        chapterList: document.querySelector('.chapter-list')
+    };
+
+    const navButtons = {
+        prevTop: document.getElementById('prev-btn'),
+        nextTop: document.getElementById('next-btn'),
+        prevBottom: document.getElementById('prev-btn-bottom'),
+        nextBottom: document.getElementById('next-btn-bottom')
+    };
+
+    // Configuration
+    const config = {
+        chapterFolder: 'chapters/',
+        chapterExtension: '.md',
+        fadeDuration: 500
+    };
+
+    let currentChapter = 1;
+    let totalChapters = 0;
+
+    // Chapter detection
+    async function detectAvailableChapters() {
+        let chapterCount = 0;
+        let chapterNumbers = [];
+        
+        for (let i = 1; i <= 100; i++) {
+            try {
+                const response = await fetch(`${config.chapterFolder}${i}${config.chapterExtension}`);
+                if (response.ok) {
+                    chapterCount = i;
+                    chapterNumbers.push(i);
+                } else {
+                    break;
+                }
+            } catch (error) {
+                break;
+            }
+        }
+        return { count: chapterCount, numbers: chapterNumbers };
     }
-    
-    .nav-btn {
-        width: 100%;
+
+    // Chapter loading
+    async function loadChapter(chapterNum) {
+        if (chapterNum < 1) return;
+        
+        if (totalChapters === 0) {
+            chapterElements.title.textContent = 'No Chapters Available';
+            chapterElements.content.innerHTML = '<p class="coming-soon">Check back later for new content!</p>';
+            updateNavButtons();
+            return;
+        }
+        
+        if (chapterNum > totalChapters) {
+            chapterElements.title.textContent = 'New Chapter Coming Soon';
+            chapterElements.content.innerHTML = '<p class="coming-soon">Story in progress</p>';
+            currentChapter = totalChapters;
+            updateNavButtons();
+            return;
+        }
+        
+        try {
+            chapterElements.title.textContent = 'Loading...';
+            chapterElements.title.classList.add('loading-blink');
+            chapterElements.content.innerHTML = '<p class="loading-blink">Loading content...</p>';
+            
+            chapterElements.container.classList.add('fade-out');
+            await new Promise(resolve => setTimeout(resolve, config.fadeDuration));
+            
+            const response = await fetch(`${config.chapterFolder}${chapterNum}${config.chapterExtension}`);
+            if (!response.ok) throw new Error("Chapter not found");
+            
+            const text = await response.text();
+            const lines = text.split('\n');
+            const title = lines[0].trim();
+            const content = formatContent(lines.slice(1).join('\n'));
+            
+            chapterElements.title.classList.remove('loading-blink');
+            chapterElements.title.textContent = title;
+            chapterElements.content.innerHTML = content;
+            currentChapter = chapterNum;
+            
+            updateNavButtons();
+            chapterElements.container.classList.remove('fade-out');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } catch (error) {
+            console.error("Error loading chapter:", error);
+            chapterElements.title.classList.remove('loading-blink');
+            chapterElements.content.innerHTML = `<p class="error">Error loading chapter. Please try again.</p>`;
+            chapterElements.container.classList.remove('fade-out');
+        }
     }
-    
-    .theme-switch-wrapper {
-        top: 10px;
-        right: 10px;
+
+    function formatContent(text) {
+        return marked.parse(text);
     }
-    
-    .sidebar-menu {
-        width: 80%;
-        left: -80%;
+
+    function updateNavButtons() {
+        const isFirst = currentChapter <= 1;
+        const isLast = currentChapter >= totalChapters;
+        
+        [navButtons.prevTop, navButtons.prevBottom].forEach(btn => {
+            btn.style.display = isFirst ? 'none' : 'flex';
+        });
+        
+        [navButtons.nextTop, navButtons.nextBottom].forEach(btn => {
+            btn.style.display = isLast ? 'none' : 'flex';
+        });
     }
-    
-    .sidebar-menu.active {
-        left: 0;
+
+    // Navigation Setup
+    function setupNavigation() {
+        const handleNav = (direction) => {
+            const newChapter = currentChapter + direction;
+            if (newChapter >= 1 && newChapter <= totalChapters) {
+                loadChapter(newChapter);
+            }
+        };
+        
+        navButtons.prevTop.addEventListener('click', () => handleNav(-1));
+        navButtons.nextTop.addEventListener('click', () => handleNav(1));
+        navButtons.prevBottom.addEventListener('click', () => handleNav(-1));
+        navButtons.nextBottom.addEventListener('click', () => handleNav(1));
     }
-}
+
+    // Initialize Chapter List in Sidebar - THIS WAS MISSING
+    async function initChapterList(chapterNumbers) {
+        chapterElements.chapterList.innerHTML = ''; // Clear existing items
+        
+        for (const chapterNum of chapterNumbers) {
+            try {
+                const response = await fetch(`${config.chapterFolder}${chapterNum}${config.chapterExtension}`);
+                if (response.ok) {
+                    const text = await response.text();
+                    const title = text.split('\n')[0].trim();
+                    
+                    const item = document.createElement('div');
+                    item.className = 'chapter-item';
+                    item.textContent = `Chapter ${chapterNum} - ${title}`;
+                    item.addEventListener('click', () => {
+                        loadChapter(chapterNum);
+                        closeSidebar();
+                    });
+                    
+                    chapterElements.chapterList.appendChild(item);
+                }
+            } catch (error) {
+                console.error(`Error loading chapter ${chapterNum}:`, error);
+            }
+        }
+    }
+
+    function closeSidebar() {
+        chapterElements.sidebar.classList.remove('active');
+        chapterElements.overlay.classList.remove('active');
+    }
+
+    // Initialize
+    async function init() {
+        // Detect available chapters
+        const chapters = await detectAvailableChapters();
+        totalChapters = chapters.count;
+        
+        // Setup navigation
+        setupNavigation();
+        
+        // Initialize chapter list in sidebar
+        await initChapterList(chapters.numbers);
+        
+        // Load first chapter
+        loadChapter(1);
+        
+        // Sidebar toggle functionality
+        document.querySelector('.menu-toggle').addEventListener('click', () => {
+            chapterElements.sidebar.classList.add('active');
+            chapterElements.overlay.classList.add('active');
+        });
+        
+        document.querySelector('.close-sidebar').addEventListener('click', closeSidebar);
+        chapterElements.overlay.addEventListener('click', closeSidebar);
+    }
+
+    init();
+});
