@@ -91,6 +91,19 @@ body {
     letter-spacing: 1px;
 }
 
+/* Add this to your styles.css */
+.loading-blink {
+    animation: blink 1.5s infinite;
+    text-align: center;
+    margin-top: 20px;
+    color: var(--accent-color);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
 /* Navigation Buttons */
 .navigation, .bottom-navigation {
     display: flex;
