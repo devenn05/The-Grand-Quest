@@ -1,11 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Configuration
-    const config = {
-        totalChapters: 100,
-        chapterFolder: 'chapters/',
-        fadeDuration: 500
-    };
-
     // Theme Switcher
     const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
     const themeText = document.getElementById('theme-text');
@@ -47,10 +40,18 @@ document.addEventListener('DOMContentLoaded', function() {
         nextBottom: document.getElementById('next-btn-bottom')
     };
 
+    // Configuration
+    const config = {
+        totalChapters: 100, // Update with your total chapter count
+        chapterFolder: 'chapters/', // Folder containing your txt files
+        fadeDuration: 500 // Transition time in ms
+    };
+
     let currentChapter = 1;
+    let scrollPosition = 0;
     let isScrolling = false;
 
-    // Chapter Loading with Cache
+    // Core Functions
     async function loadChapter(chapterNum) {
         if (chapterNum < 1 || chapterNum > config.totalChapters) return;
         
@@ -59,22 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
             chapterElements.container.classList.add('fade-out');
             await new Promise(resolve => setTimeout(resolve, config.fadeDuration));
             
-            // Try to get from cache first
-            const cacheKey = `chapter-${chapterNum}`;
-            const cached = sessionStorage.getItem(cacheKey);
-            let text;
+            // Load chapter content
+            const response = await fetch(`${config.chapterFolder}${chapterNum}.txt`);
+            if (!response.ok) throw new Error("Chapter not found");
             
-            if (cached) {
-                text = cached;
-            } else {
-                // Load from network
-                const response = await fetch(`${config.chapterFolder}${chapterNum}.txt`);
-                if (!response.ok) throw new Error("Chapter not found");
-                text = await response.text();
-                // Cache it
-                sessionStorage.setItem(cacheKey, text);
-            }
-            
+            const text = await response.text();
             const lines = text.split('\n');
             const title = lines[0].trim();
             const content = formatContent(lines.slice(1).join('\n'));
@@ -122,9 +112,62 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Scroll effects (unchanged from your original)
+    // Scroll-based fade effects
     function setupScrollEffects() {
-        /* ... keep your existing scroll effect code ... */
+        const contentElements = [
+            chapterElements.title, 
+            chapterElements.content, 
+            ...document.querySelectorAll('#novel-text p')
+        ];
+
+        function handleScroll() {
+            if (isScrolling) return;
+            isScrolling = true;
+            
+            requestAnimationFrame(() => {
+                const scrollY = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.body.scrollHeight;
+                
+                contentElements.forEach((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const elementTop = rect.top;
+                    const elementBottom = rect.bottom;
+                    
+                    // Calculate visibility ratio (0 to 1)
+                    const visibleHeight = Math.min(elementBottom, windowHeight) - Math.max(elementTop, 0);
+                    const visibilityRatio = Math.min(1, visibleHeight / rect.height);
+                    
+                    // Apply fade effect based on position
+                    if (elementTop < windowHeight / 2) {
+                        // Elements above center - fade as they scroll up
+                        const fadeAmount = 1 - (windowHeight/2 - elementTop) / (windowHeight/2);
+                        el.style.opacity = Math.max(0.3, fadeAmount);
+                        el.style.transform = `translateY(${10 * (1 - fadeAmount)}px)`;
+                    } else {
+                        // Elements below center - fade as they scroll down
+                        const fadeAmount = 1 - (elementTop - windowHeight/2) / (windowHeight/2);
+                        el.style.opacity = Math.max(0.3, fadeAmount);
+                        el.style.transform = `translateY(${-10 * (1 - fadeAmount)}px)`;
+                    }
+                });
+                
+                isScrolling = false;
+            });
+        }
+
+        // Throttle scroll events for performance
+        let isThrottled = false;
+        window.addEventListener('scroll', () => {
+            if (!isThrottled) {
+                handleScroll();
+                isThrottled = true;
+                setTimeout(() => { isThrottled = false; }, 50);
+            }
+        });
+
+        // Initial setup
+        handleScroll();
     }
 
     // Navigation Buttons
@@ -170,28 +213,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initialize Service Worker
-    function initServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('ServiceWorker registration successful');
-                })
-                .catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-        }
-    }
-
-    // Main Initialization
+    // Initialize
     async function init() {
-        initServiceWorker();
         setupNavigation();
         setupScrollEffects();
         await initChapterList();
         loadChapter(1);
         
-        // Sidebar events
+        // Sidebar toggle functionality
         document.querySelector('.menu-toggle').addEventListener('click', () => {
             chapterElements.sidebar.classList.add('active');
             chapterElements.overlay.classList.add('active');
