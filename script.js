@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (chapterNum < 1 || chapterNum > config.totalChapters) return;
         
         try {
+            // Set loading state
+            chapterElements.title.textContent = 'Loading...';
+            chapterElements.title.classList.add('loading-blink');
+            chapterElements.content.innerHTML = '<p class="loading-blink">Loading content...</p>';
+            
             // Start fade out
             chapterElements.container.classList.add('fade-out');
             await new Promise(resolve => setTimeout(resolve, config.fadeDuration));
@@ -70,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const content = formatContent(lines.slice(1).join('\n'));
             
             // Update UI
+            chapterElements.title.classList.remove('loading-blink');
             chapterElements.title.textContent = title;
             chapterElements.content.innerHTML = content;
             currentChapter = chapterNum;
@@ -85,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error("Error loading chapter:", error);
+            chapterElements.title.classList.remove('loading-blink');
             chapterElements.content.innerHTML = 
                 `<p class="error">Error loading chapter. Please try again.</p>`;
             chapterElements.container.classList.remove('fade-out');
@@ -218,6 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
         setupNavigation();
         setupScrollEffects();
         await initChapterList();
+        
+        // Set initial loading state
+        chapterElements.title.classList.add('loading-blink');
+        chapterElements.content.innerHTML = '<p class="loading-blink">Loading content...</p>';
+        
         loadChapter(1);
         
         // Sidebar toggle functionality
