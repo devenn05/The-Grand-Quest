@@ -187,6 +187,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     async function init() {
+        // Set initial state - cover is visible (handled by CSS animations)
+        document.body.style.overflow = 'hidden'; // Prevent scrolling during cover display
+    
+        // Load content after cover animation completes (4000ms = 3.5s display + 0.5s fade-out)
+        await new Promise(resolve => setTimeout(resolve, 4000));
+        
+        // Restore scrolling
+        document.body.style.overflow = '';
+    
         // Detect available chapters
         const chapters = await detectAvailableChapters();
         totalChapters = chapters.count;
