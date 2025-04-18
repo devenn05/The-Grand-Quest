@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Theme Switcher (unchanged)
+    // Theme Switcher
     const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
     const themeText = document.getElementById('theme-text');
 
@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Chapter loading
     async function loadChapter(chapterNum) {
+        const previousChapter = currentChapter;
+        
         if (chapterNum < 1) return;
         
         if (totalChapters === 0) {
@@ -109,9 +111,27 @@ document.addEventListener('DOMContentLoaded', function() {
             chapterElements.content.innerHTML = content;
             currentChapter = chapterNum;
             
+            // Save progress
+            localStorage.setItem('lastChapter', currentChapter);
+            
+            // Cleanup old scroll position
+            localStorage.removeItem(`chapterScroll_${previousChapter}`);
+            
             updateNavButtons();
             chapterElements.container.classList.remove('fade-out');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Restore scroll position
+            const savedScroll = localStorage.getItem(`chapterScroll_${currentChapter}`);
+            if (savedScroll) {
+                window.scrollTo(0, savedScroll);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Save scroll position
+            window.addEventListener('scroll', () => {
+                localStorage.setItem(`chapterScroll_${currentChapter}`, window.scrollY);
+            });
             
         } catch (error) {
             console.error("Error loading chapter:", error);
@@ -153,9 +173,9 @@ document.addEventListener('DOMContentLoaded', function() {
         navButtons.nextBottom.addEventListener('click', () => handleNav(1));
     }
 
-    // Initialize Chapter List in Sidebar - THIS WAS MISSING
+    // Initialize Chapter List
     async function initChapterList(chapterNumbers) {
-        chapterElements.chapterList.innerHTML = ''; // Clear existing items
+        chapterElements.chapterList.innerHTML = '';
         
         for (const chapterNum of chapterNumbers) {
             try {
@@ -187,15 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     async function init() {
-        // Set initial state - cover is visible (handled by CSS animations)
-        document.body.style.overflow = 'hidden'; // Prevent scrolling during cover display
-    
-        // Load content after cover animation completes (4000ms = 3.5s display + 0.5s fade-out)
-        await new Promise(resolve => setTimeout(resolve, 4000));
-        
-        // Restore scrolling
-        document.body.style.overflow = '';
-    
         // Detect available chapters
         const chapters = await detectAvailableChapters();
         totalChapters = chapters.count;
@@ -203,13 +214,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup navigation
         setupNavigation();
         
-        // Initialize chapter list in sidebar
+        // Initialize chapter list
         await initChapterList(chapters.numbers);
         
-        // Load first chapter
-        loadChapter(1);
+        // Load saved or first chapter
+        const savedChapter = Math.min(
+            parseInt(localStorage.getItem('lastChapter')) || 1,
+            totalChapters
+        );
+        loadChapter(savedChapter);
         
-        // Sidebar toggle functionality
+        // Sidebar toggle
         document.querySelector('.menu-toggle').addEventListener('click', () => {
             chapterElements.sidebar.classList.add('active');
             chapterElements.overlay.classList.add('active');
