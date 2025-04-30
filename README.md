@@ -1,33 +1,42 @@
-# The-Grand-Quest
+# The Grand Quest - Novel Reader Web Page
 
-This is a custom-built webpage for my fantasy fiction novel "The Grand Quest" which serves as both a reading platform and a showcase of my web development skills. As an aspiring writer, I wanted to create an immersive digital experience for my readers while demonstrating my technical abilities.
+![Cover Image](icons/cover.jpg)
 
-Key Features
-Reading Experience
-Chapter System: A complete chapter navigation system that loads Markdown files dynamically
+A custom-built web application for reading my fantasy fiction novel *The Grand Quest*, combining my passion for writing with web development.
 
-Persistent Reading Progress: Remembers the last chapter read and scroll position
+## Features
 
-Responsive Design: Works well on both desktop and mobile devices
+- 📖 **Chapter System**: Dynamic loading of Markdown-formatted chapters
+- 🌗 **Theme Toggle**: Light/dark mode with localStorage persistence
+- 📱 **Responsive Design**: Optimized for both desktop and mobile
+- 🔄 **Reading Progress**: Remembers last chapter and scroll position
+- 📜 **Sidebar Navigation**: Easy chapter selection menu
+- ✨ **Animations**: Smooth transitions between chapters and pages
 
-Smooth Transitions: Fade animations between chapters for seamless reading
+## Technical Stack
 
-Technical Implementation
-Modern Frontend Stack: Built with HTML5, CSS3, and vanilla JavaScript
+- **Frontend**: HTML5, CSS3, JavaScript (vanilla)
+- **Libraries**: 
+  - [marked.js](https://marked.js.org/) - Markdown rendering
+  - [Font Awesome](https://fontawesome.com/) - Icons
+  - [Google Fonts](https://fonts.google.com/) - Custom typography
+- **Features**:
+  - CSS variables for theming
+  - Custom scrollbar styling
+  - Loading animations and transitions
+  - Progressive enhancement approach
 
-Markdown Support: Uses the marked.js library to render chapter content
+## About the Project
 
-Theme System: Light/dark mode toggle with localStorage persistence
+As both a writer and developer, I created this project to:
+- Share my fantasy fiction novel with readers
+- Showcase my frontend development skills
+- Combine my creative writing with technical implementation
 
-Sidebar Navigation: Chapter list for easy navigation between sections
+The novel's tagline *"No heroes, Only survivors"* reflects its gritty, realistic take on fantasy fiction.
 
-Loading System: Elegant cover page with loading animation
+## Installation & Usage
 
-Design Elements
-Custom Scrollbars: Unique scrollbar styling that changes with theme
-
-Typography: Carefully selected fonts for headings and body text
-
-Animations: Subtle animations for buttons and page transitions
-
-Social Integration: Links to my Instagram and email
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/the-grand-quest.git
