@@ -1,6 +1,6 @@
 # The Grand Quest - Novel Reader Web Page
 
-![Cover Image](icons/cover.jpg)
+![Cover Image](icons/cover.jpeg)
 
 A custom-built web application for reading my fantasy fiction novel *The Grand Quest*, combining my passion for writing with web development.
 
