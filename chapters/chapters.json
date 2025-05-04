@@ -1,0 +1,87 @@
+[
+    {
+      "id": 1,
+      "title": "Chapter 1: A Slice of Life",
+      "file": "1.md"
+    },
+    {
+      "id": 2,
+      "title": "Chapter 2: Sneak Peak",
+      "file": "2.md"
+    },
+    {
+      "id": 3,
+      "title": "Chapter 3: Heads or Tails, Bon Appétit",
+      "file": "3.md"
+    },
+    {
+      "id": 4,
+      "title": "Chapter 4: Back to the Plot",
+      "file": "4.md"
+    },
+    {
+      "id": 5,
+      "title": "Chapter 5: Shallow Memories",
+      "file": "5.md"
+    },
+    {
+      "id": 6,
+      "title": "Chapter 6: Space Case",
+      "file": "6.md"
+    },
+    {
+      "id": 7,
+      "title": "Chapter 7: Off Track",
+      "file": "7.md"
+    },
+    {
+      "id": 8,
+      "title": "Chapter 8: My New Friend",
+      "file": "8.md"
+    },
+    {
+      "id": 9,
+      "title": "Chapter 9: A walk in the Park",
+      "file": "9.md"
+    },
+    {
+      "id": 10,
+      "title": "Chapter 10: A Big Guy and a Little Elf",
+      "file": "10.md"
+    },
+    {
+      "id": 11,
+      "title": "Chapter 11: Three Monkeys and a Cat",
+      "file": "11.md"
+    },
+    {
+      "id": 12,
+      "title": "Chapter 12: Cat's out of the bag",
+      "file": "12.md"
+    },
+    {
+      "id": 13,
+      "title": "Chapter 13: Day's Out",
+      "file": "13.md"
+    },
+    {
+      "id": 14,
+      "title": "Chapter 14: Sweat Fest",
+      "file": "14.md"
+    },
+    {
+      "id": 15,
+      "title": "Chapter 15: 2v1",
+      "file": "15.md"
+    },
+    {
+      "id": 16,
+      "title": "Chapter 16: Atomic Incursion",
+      "file": "16.md"
+    },
+    {
+      "id": 17,
+      "title": "Chapter 17: Goofy Gato",
+      "file": "17.md"
+    }
+  ]
