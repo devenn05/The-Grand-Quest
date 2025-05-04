@@ -578,57 +578,90 @@ body {
     .top-nav {
         position: static;
         height: auto;
+        /* Keep centering for title/subtitle */
     }
     .nav-content {
         flex-direction: column;
         padding: 10px 20px;
     }
     .nav-title {
-        margin-bottom: 10px;
+        margin-bottom: 5px; /* Reduced bottom margin */
+        font-size: 1.5rem; /* Slightly smaller on mobile maybe */
     }
+    .nav-subtitle {
+        margin-top: 0; /* Remove top margin */
+        font-size: 0.8rem;
+    }
+
+    /* --- ADJUSTMENTS FOR MOBILE SIDEBAR (TOP BAR) --- */
     .sidebar {
         position: sticky;
         top: 0; /* Sticks below nav (which is now static) */
         left: 0; right: 0; bottom: auto;
         width: 100%;
-        height: auto;
-        padding: 5px 0; /* Reduced padding for compact view */
+        height: auto; /* Auto height based on content */
+        padding: 5px 0; /* Keep vertical padding minimal */
         border-left: none;
-        border-bottom: 1px solid #d4c4b0;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center; /* Center icons vertically */
+        border-bottom: 1px solid #d4c4b0; /* Theme controlled */
+        display: flex; /* Use flexbox */
+        flex-direction: row; /* Arrange items horizontally */
+        justify-content: space-around; /* Distribute items evenly with space around */
+        align-items: center; /* Center items vertically */
         z-index: 950;
         background: inherit; /* Match theme background */
+
+        /* Theme overrides for border */
+        border-color: var(--nav-border-color, #d4c4b0); /* Use variable or default */
     }
+    .dark-theme .sidebar { border-color: #404040; }
+    .light-theme .sidebar { border-color: #ddd; }
+
+
     .sidebar-icons {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        gap: 0;
-        width: 100%;
+        display: contents; /* Allow menu-items to be direct flex children of .sidebar */
+        /* Remove previous flex properties from here if they existed */
     }
-    .sidebar-icons .menu-item { /* Specificity for sizing icons */
-        flex-grow: 1; /* Distribute space */
-        text-align: center;
+
+    .sidebar .menu-item { /* Target menu items *within* the mobile sidebar */
+        display: flex; /* Make the item itself a flex container */
+        justify-content: center; /* Center the icon horizontally */
+        align-items: center; /* Center the icon vertically */
+        flex: 1 1 0; /* Allow items to grow and shrink equally, starting from 0 basis */
+        /* Removed text-align: center, use flex alignment instead */
+        padding: 5px; /* Add some padding around each item */
+        position: relative; /* Keep for potential tooltips/panels */
     }
-     .sidebar-icons .menu-item i {
-          padding: 8px; /* Slightly smaller padding */
-          font-size: 1.3rem; /* Slightly smaller icons */
+
+     .sidebar .menu-item i {
+          padding: 8px; /* Adjust icon padding if needed */
+          font-size: 1.4rem; /* Adjust icon size if needed */
+          /* Ensure color comes from theme */
+          color: var(--icon-color, #3a3226); /* Use variable or default */
       }
-    .panel {
+     .dark-theme .sidebar .menu-item i { color: #e0e0e0; }
+     .light-theme .sidebar .menu-item i { color: #333; }
+
+    /* Ensure panels still work */
+     .panel {
         position: fixed;
-        top: 50px; /* Position below sticky sidebar - adjust if sidebar height changes */
-        right: -85%; /* Start further off-screen */
+        top: 55px; /* Adjust based on actual height of sticky sidebar */
+        right: -85%;
         bottom: 0;
         width: 80%;
         border-left: 1px solid #ddd;
-        border-top: 1px solid #ddd; /* Panel has top border now */
+        border-top: 1px solid #ddd;
         z-index: 800;
+        /* Theme overrides */
+        background-color: var(--panel-bg, white);
+        border-color: var(--panel-border, #ddd);
     }
+    .dark-theme .panel { background: #2a2a2a; border-color: #404040; }
+    .light-theme .panel { background: #f8f8f8; border-color: #ddd; }
+    .warm-theme .panel { background: #f5e7d4; border-color: #ddd; }
+
+
     .panel.active {
-        right: 0; /* Slide in fully */
+        right: 0;
     }
     .content {
         padding: 20px 15px 80px;
@@ -643,4 +676,28 @@ body {
         width: 80%; /* Make buttons wider */
         text-align: center;
     }
+} /* End of @media block */
+
+/* --- Add Theme Variables (Optional but good practice) --- */
+/* Add these near the top of your CSS or within the theme classes */
+.warm-theme {
+    /* ... other warm theme styles ... */
+    --nav-border-color: #d4c4b0;
+    --icon-color: #3a3226;
+    --panel-bg: #f5e7d4;
+    --panel-border: #ddd;
+}
+.dark-theme {
+    /* ... other dark theme styles ... */
+    --nav-border-color: #404040;
+    --icon-color: #e0e0e0;
+    --panel-bg: #2a2a2a;
+    --panel-border: #404040;
+}
+.light-theme {
+    /* ... other light theme styles ... */
+    --nav-border-color: #ddd;
+    --icon-color: #333;
+    --panel-bg: #f8f8f8;
+    --panel-border: #ddd;
 }
