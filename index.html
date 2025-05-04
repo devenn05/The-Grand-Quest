@@ -1,95 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Favicon -->
-    <link rel="icon" href="icons/white_bacteria.png" media="(prefers-color-scheme: light)">
-    <link rel="icon" href="icons/black_bacteria.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" href="icons/white_bacteria.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/bacteria_32.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/bacteria_16.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/bacteria_192.jpg">
-    <link rel="manifest" href="/site.webmanifest">
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Grand Quest</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Arbutus&family=Boldonse&family=Federo&family=Limelight&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Rubik+Doodle+Shadow&family=Viaoda+Libre&display=swap" rel="stylesheet">    
-</head>
-<body>
-    <div class="cover-overlay">
-        <img src="icons/cover.jpeg" alt="The Grand Quest Cover" class="cover-photo">
-        <div class="loading-spinner"></div>
-    </div>
-    <div class="sidebar-overlay"></div>
-<div class="sidebar-menu">
-    <div class="sidebar-header">
-        <h3>Chapters</h3>
-        <button class="close-sidebar">&times;</button>
-    </div>
-    <div class="chapter-list">
-        <!-- Chapters will be added dynamically -->
-    </div>
-</div>
-    <div class="theme-switch-wrapper">
-        <label class="theme-switch" for="checkbox">
-            <input type="checkbox" id="checkbox">
-            <div class="slider round"></div>
-        </label>
-        <span id="theme-text">Dark Mode</span>
-    </div>
 
-    <div class="container">
-        <button class="menu-toggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        <h1 class="title fade-in">The Grand Quest</h1>
-        
-        
-        <div class="navigation fade-in">
-            <button id="prev-btn" class="nav-btn">
-                <span class="btn-icon"><i class="fas fa-chevron-left"></i></span>
-                <span class="btn-text">Previous Chapter</span>
-            </button>
-            <button id="next-btn" class="nav-btn">
-                <span class="btn-text">Next Chapter</span>
-                <span class="btn-icon"><i class="fas fa-chevron-right"></i></span>
-            </button>
+    <!-- External Libraries CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/default.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+Pinstripe:ital@0;1&family=Arbutus&family=Boldonse&family=Bubblegum+Sans&family=Imperial+Script&family=Limelight&family=Poiret+One&family=Rubik+Dirt&family=Sansita:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700;1,800;1,900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- External Libraries JS -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js"></script>
+
+</head>
+<body class="warm-theme">
+
+    <nav class="top-nav">
+        <div class="nav-content">
+            <div class="nav-left"></div>
+            <div class="title-container">
+                <h1 class="nav-title">The Grand Quest</h1>
+                <p class="nav-subtitle">By PlotPilot</p>
+            </div>
+            <div class="nav-right"></div>
         </div>
-        
-        <div class="chapter-content">
-            <h2 id="chapter-title" class="fade-in">Loading Chapter...</h2>
-            <div id="novel-text" class="fade-in">
-                <p  class="loading-blink">The chapter will load in a few seconds! 🍿🥤</p>
+    </nav>
+
+    <aside class="sidebar">
+        <div class="sidebar-icons">
+            <!-- Chapters Menu -->
+            <div class="menu-item" title="Chapters">
+                <i class="fas fa-book-open chapter-menu"></i>
+                <div class="panel chapter-panel">
+                    <h3>Chapters</h3>
+                    <div class="chapter-list"></div> <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Chapter Navigation Icons -->
+            <div class="menu-item" id="prev-chapter-icon" title="Previous Chapter">
+                <i class="fas fa-arrow-circle-left"></i>
+            </div>
+            <div class="menu-item" id="next-chapter-icon" title="Next Chapter">
+                <i class="fas fa-arrow-circle-right"></i>
+            </div>
+
+            <!-- Text-to-Speech Controls -->
+            <div class="menu-item" id="play-button" title="Play">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="menu-item" id="pause-button" style="display: none;" title="Pause/Play">
+                <i class="fas fa-pause-circle"></i> <!-- Icon changes via JS -->
+            </div>
+            <div class="menu-item" id="stop-button" style="display: none;" title="Stop">
+                <i class="fas fa-stop-circle"></i>
+            </div>
+
+            <!-- Settings Menu -->
+            <div class="menu-item" title="Settings">
+                <i class="fas fa-cog settings-menu"></i>
+                <div class="panel settings-panel">
+                    <div class="settings-content">
+                        <!-- Font Size Controls -->
+                        <div class="font-controls">
+                            <button class="font-btn smaller">A-</button>
+                            <span class="font-size-label">Text Size</span>
+                            <button class="font-btn larger">A+</button>
+                        </div>
+                        <!-- Font Family Selector -->
+                        <div class="font-select">
+                            <select class="font-family" aria-label="Select Font Family">
+                                <option value="serif" style="font-family: serif;">Serif</option>
+                                <option value="sans-serif" style="font-family: sans-serif;">Sans-serif</option>
+                                <option value="monospace" style="font-family: monospace;">Monospace</option>
+                                <option value="'Alumni Sans Pinstripe', sans-serif" style="font-family: 'Alumni Sans Pinstripe', sans-serif; font-weight: bolder;">Alumni Sans Pinstripe</option>
+                                <option value="'Poiret One', cursive" style="font-family: 'Poiret One', cursive;">Poiret One</option>
+                                <option value="'Sansita', sans-serif" style="font-family: 'Sansita', sans-serif;">Sansita</option>
+                                <option value="'Bubblegum Sans', sans-serif" style="font-family: 'Bubblegum Sans', sans-serif;">Bubblegum Sans</option>
+                                <option value="'Shantell Sans', sans-serif" style="font-family: 'Shantell Sans', sans-serif;">Shantell Sans</option>
+                                <option value="'Rubik Dirt', cursive" style="font-family: 'Rubik Dirt', cursive;">Rubik Dirt</option>
+                                <option value="'Imperial Script', cursive" style="font-family: 'Imperial Script', cursive;">Imperial Script</option>
+                                <!-- Add other Google fonts from the link if needed in dropdown -->
+                                <option value="'Limelight', sans-serif" style="font-family: 'Limelight', sans-serif;">Limelight</option>
+                                <option value="'Boldonse', system-ui" style="font-family: 'Boldonse', system-ui;">Boldonse</option>
+                                <option value="'Arbutus', serif" style="font-family: 'Arbutus', serif;">Arbutus</option>
+                            </select>
+                        </div>
+                        <!-- Theme Selector -->
+                        <div class="theme-switcher">
+                            <div class="theme-option active" data-theme="warm">Warm Theme</div>
+                            <div class="theme-option" data-theme="light">Light Theme</div>
+                            <div class="theme-option" data-theme="dark">Dark Theme</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div class="bottom-navigation fade-in">
-            <button id="prev-btn-bottom" class="nav-btn">
-                <span class="btn-icon"><i class="fas fa-chevron-left"></i></span>
-                <span class="btn-text">Previous Chapter</span>
-            </button>
-            <button id="next-btn-bottom" class="nav-btn">
-                <span class="btn-text">Next Chapter</span>
-                <span class="btn-icon"><i class="fas fa-chevron-right"></i></span>
-            </button>
-        </div>
-    </div>
-    
-    <footer class="fade-in">
+    </aside>
+
+    <main class="content">
+        <header class="chapter-header">
+            <div class="chapter-nav top">
+                <a href="#" class="nav-button nav-button-prev" title="Previous Chapter">Previous</a>
+                <h2 aria-live="polite">Loading...</h2> <!-- Chapter Title (dynamic) -->
+                <a href="#" class="nav-button nav-button-next" title="Next Chapter">Next</a>
+            </div>
+        </header>
+
+        <article class="chapter-content">
+            <div class="content-container" aria-live="polite">
+                <!-- Chapter content loaded by JS -->
+            </div>
+        </article>
+
+        <footer class="chapter-footer">
+            <div class="chapter-nav bottom">
+                <a href="#" class="nav-button nav-button-prev" title="Previous Chapter">Previous</a>
+                <a href="#" class="nav-button nav-button-next" title="Next Chapter">Next</a>
+            </div>
+        </footer>
+    </main>
+
+    <footer class="main-footer">
         <div class="footer-content">
-            <h3>TGQ</h3>
-            <p>No heroes, Only survivors.</p>
-            <div class="social-links">
-                <a href="https://www.instagram.com/devenn05/"><i class="fab fa-instagram"></i></a>
-                <a href="mailto:rahoolhirlekar@gmail.com" title="Email Us"><i class="fas fa-envelope"></i></a>
+            <div class="footer-left">
+                <span>The Grand Quest.</span>
             </div>
-            <p class="copyright">© 2025 The Grand Quest. All rights reserved.</p>
+            <div class="footer-right">
+                <a href="https://www.instagram.com/devenn05/" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:rahoolhirlekar@gmail.com" class="social-link" title="Email"><i class="fas fa-envelope"></i></a>
+            </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- Local Script (defer recommended) -->
+    <script src="script.js" defer></script>
+
 </body>
 </html>
