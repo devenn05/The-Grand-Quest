@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // DOM References
+    // DOM References (remain the same)
     const contentElement = document.querySelector('.chapter-content');
     const contentContainer = document.querySelector('.chapter-content .content-container');
     const chapterTitleElement = document.querySelector('.chapter-nav h2');
@@ -22,22 +22,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const stopButton = document.getElementById('stop-button');
     const pauseButtonIcon = pauseButton.querySelector('i');
 
-    // TTS State
+    // TTS State (remain the same)
     const speechSynth = window.speechSynthesis;
     let currentChapterId = null;
     let chapters = [];
-    let currentUtterance = null; // Ref to current chunk's utterance
+    let currentUtterance = null;
 
-    // Chunking State
+    // Chunking State (remain the same)
     let chapterChunks = [];
     let currentChunkIndex = -1;
-    let isSpeaking = false; // Master flag for speech process
+    let isSpeaking = false;
 
-    // Highlighting State
+    // Highlighting State (remain the same)
     let pausedParagraphElement = null;
     let lastSpokenWordSpan = null;
 
-    // --- Initialization ---
+    // --- Initialization --- (remains the same)
     async function initApplication() {
         if (!('speechSynthesis' in window)) {
             console.warn("TTS not supported.");
@@ -56,16 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
             contentContainer.innerHTML = '<p class="error">Could not load chapters manifest.</p>';
             chapterTitleElement.textContent = 'Error';
             updateNavigationButtons();
-            // Explicitly hide buttons if no chapters & synth not supported
              if (!('speechSynthesis' in window) || chapters.length === 0) {
                 playButton.style.display = 'none'; pauseButton.style.display = 'none'; stopButton.style.display = 'none';
              }
         }
-        // Initial state update for buttons
-        updateSpeechButtonsState(); // Will hide if needed based on flags/support
+        updateSpeechButtonsState();
     }
 
-    // --- Chapter Loading & Parsing ---
+    // --- Chapter Loading & Parsing --- (remain the same)
     async function loadChaptersManifest() {
         try {
             const response = await fetch('chapters/chapters.json');
@@ -76,120 +74,74 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading chapters manifest:', error); chapters = [];
         }
     }
-
     function populateChapterList() {
-        const chapterList = document.querySelector('.chapter-list');
-        chapterList.innerHTML = '';
+        const chapterList = document.querySelector('.chapter-list'); chapterList.innerHTML = '';
         if (chapters.length === 0) { chapterList.innerHTML = '<p>No chapters found.</p>'; return; }
         chapters.forEach(chapter => {
-            const chapterItem = document.createElement('div');
-            chapterItem.className = 'chapter-item'; chapterItem.textContent = chapter.title;
-            chapterItem.dataset.chapterId = chapter.id; chapterList.appendChild(chapterItem);
+            const chapterItem = document.createElement('div'); chapterItem.className = 'chapter-item';
+            chapterItem.textContent = chapter.title; chapterItem.dataset.chapterId = chapter.id;
+            chapterList.appendChild(chapterItem);
         });
-     }
-
+    }
     async function loadChapter(chapterId) {
-        // Use the modified stopSpeech for robust cleanup between chapters
-        stopSpeech(true); // Pass true for internal cleanup context
-
+        stopSpeech(true);
         currentUtterance = null; chapterChunks = []; currentChunkIndex = -1; isSpeaking = false;
         removeHighlighting();
-        // Note: resetSpeechButtonsVisuals() is called within stopSpeech now
-
         try {
-            const chapter = chapters.find(c => c.id == chapterId);
-            if (!chapter) throw new Error(`Chapter ID ${chapterId} not found.`);
-
-            contentContainer.innerHTML = '<div class="loading">Loading chapter...</div>';
-            chapterTitleElement.textContent = 'Loading...';
-
-            const response = await fetch(`chapters/${encodeURIComponent(chapter.file)}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const chapter = chapters.find(c => c.id == chapterId); if (!chapter) throw new Error(`Chapter ID ${chapterId} not found.`);
+            contentContainer.innerHTML = '<div class="loading">Loading chapter...</div>'; chapterTitleElement.textContent = 'Loading...';
+            const response = await fetch(`chapters/${encodeURIComponent(chapter.file)}`); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const markdown = await response.text();
-
-            const tempElement = document.createElement('div');
-            tempElement.innerHTML = marked.parse(markdown);
-
-            prepareSpeechChunks(tempElement); // Creates chunks and wraps words
-
-            contentContainer.innerHTML = ''; // Clear loading
-            while (tempElement.firstChild) { // Append processed content
-                 contentContainer.appendChild(tempElement.firstChild);
-             }
-
+            const tempElement = document.createElement('div'); tempElement.innerHTML = marked.parse(markdown);
+            prepareSpeechChunks(tempElement);
+            contentContainer.innerHTML = ''; while (tempElement.firstChild) { contentContainer.appendChild(tempElement.firstChild); }
             chapterTitleElement.textContent = chapter.title;
-            updateActiveChapter(chapterId);
-            currentChapterId = chapterId;
-            localStorage.setItem('lastReadChapter', chapterId);
-            applyUserStyles();
-            updateNavigationButtons();
-            updateSpeechButtonsState(); // Update based on newly loaded content
-
+            updateActiveChapter(chapterId); currentChapterId = chapterId; localStorage.setItem('lastReadChapter', chapterId);
+            applyUserStyles(); updateNavigationButtons(); updateSpeechButtonsState();
         } catch (error) {
             console.error('Error loading chapter content:', error);
             contentContainer.innerHTML = `<p class="error">Error loading chapter content: ${error.message}</p>`;
-            chapterTitleElement.textContent = 'Error';
-            updateNavigationButtons();
-            updateSpeechButtonsState(); // Ensure buttons are hidden on error
+            chapterTitleElement.textContent = 'Error'; updateNavigationButtons(); updateSpeechButtonsState();
         }
     }
-
     function prepareSpeechChunks(rootElement) {
         chapterChunks = [];
         const potentialChunkElements = rootElement.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
         const titleText = chapterTitleElement.textContent?.trim();
-        if (titleText && titleText !== 'Loading...') {
-            chapterChunks.push({ text: titleText, element: chapterTitleElement });
-        }
+        if (titleText && titleText !== 'Loading...') chapterChunks.push({ text: titleText, element: chapterTitleElement });
         potentialChunkElements.forEach(element => {
             const text = element.textContent?.trim();
-            if (text) {
-                wrapTextNodesInElement(element);
-                chapterChunks.push({ text: text.replace(/\s+/g, ' ').trim(), element: element });
-            }
+            if (text) { wrapTextNodesInElement(element); chapterChunks.push({ text: text.replace(/\s+/g, ' ').trim(), element: element }); }
         });
-        console.log(`Prepared ${chapterChunks.length} speech chunks.`);
-     }
-
-     function wrapTextNodesInElement(element) {
-         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-         let node; const nodesToReplace = [];
+        // console.log(`Prepared ${chapterChunks.length} speech chunks.`);
+    }
+    function wrapTextNodesInElement(element) {
+         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false); let node; const nodesToReplace = [];
          while (node = walker.nextNode()) {
               if (node.textContent.trim() !== '' && !node.parentElement.closest('pre, code')) {
-                   const words = node.textContent.split(/(\s+)/).filter(word => word.length > 0);
-                   const fragment = document.createDocumentFragment();
+                   const words = node.textContent.split(/(\s+)/).filter(word => word.length > 0); const fragment = document.createDocumentFragment();
                    words.forEach((word) => {
-                       if (word.trim().length > 0) {
-                           const span = document.createElement('span'); span.textContent = word;
-                           span.classList.add('speech-text-unit'); fragment.appendChild(span);
-                       } else { fragment.appendChild(document.createTextNode(word)); }
-                   });
-                   nodesToReplace.push({ original: node, replacement: fragment });
+                       if (word.trim().length > 0) { const span = document.createElement('span'); span.textContent = word; span.classList.add('speech-text-unit'); fragment.appendChild(span); }
+                       else { fragment.appendChild(document.createTextNode(word)); }
+                   }); nodesToReplace.push({ original: node, replacement: fragment });
               }
-         }
-         nodesToReplace.forEach(item => item.original.replaceWith(item.replacement));
-     }
-
-    function applyUserStyles() { /* ... (same as before) ... */
-        const savedFontSize = localStorage.getItem('fontSize') || '1.0';
-        const savedFontFamily = localStorage.getItem('fontFamily') || 'serif';
-        contentElement.style.fontSize = `${savedFontSize}rem`;
-        contentElement.style.fontFamily = savedFontFamily;
-        const savedTheme = localStorage.getItem('selectedTheme') || 'warm';
-        document.body.className = `${savedTheme}-theme`;
+         } nodesToReplace.forEach(item => item.original.replaceWith(item.replacement));
     }
-    function updateActiveChapter(chapterId) { /* ... (same as before) ... */
-        document.querySelectorAll('.chapter-item').forEach(item => item.classList.toggle('current', item.dataset.chapterId == chapterId));
+    function applyUserStyles() {
+        const savedFontSize = localStorage.getItem('fontSize') || '1.0'; const savedFontFamily = localStorage.getItem('fontFamily') || 'serif';
+        contentElement.style.fontSize = `${savedFontSize}rem`; contentElement.style.fontFamily = savedFontFamily;
+        const savedTheme = localStorage.getItem('selectedTheme') || 'warm'; document.body.className = `${savedTheme}-theme`;
     }
-    function updateNavigationButtons() { /* ... (same as before) ... */
+    function updateActiveChapter(chapterId) { document.querySelectorAll('.chapter-item').forEach(item => item.classList.toggle('current', item.dataset.chapterId == chapterId)); }
+    function updateNavigationButtons() {
         const currentIndex = chapters.findIndex(c => c.id == currentChapterId); const validIndex = currentChapterId !== null && currentIndex !== -1;
         const showPrev = validIndex && currentIndex > 0; const showNext = validIndex && currentIndex < chapters.length - 1;
         prevButtons.forEach(button => button.style.visibility = showPrev ? 'visible' : 'hidden'); prevChapterIcon.style.display = showPrev ? 'flex' : 'none';
         nextButtons.forEach(button => button.style.visibility = showNext ? 'visible' : 'hidden'); nextChapterIcon.style.display = showNext ? 'flex' : 'none';
     }
 
-    // --- Event Listeners Setup (UI Elements) ---
-    function setupEventListeners() { /* ... (same as before - includes chapter list, nav, panels, theme/font) ... */
+    // --- Event Listeners Setup (UI Elements) --- (remains the same)
+    function setupEventListeners() {
         document.querySelector('.chapter-list').addEventListener('click', event => { const chapterItem = event.target.closest('.chapter-item'); if (chapterItem) loadChapter(chapterItem.dataset.chapterId); });
         prevButtons.forEach(button => button.addEventListener('click', (e) => navigateChapter(e, -1))); nextButtons.forEach(button => button.addEventListener('click', (e) => navigateChapter(e, 1)));
         prevChapterIcon.addEventListener('click', (e) => navigateChapter(e, -1)); nextChapterIcon.addEventListener('click', (e) => navigateChapter(e, 1));
@@ -209,86 +161,92 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupSpeechEventListeners() {
         if (!('speechSynthesis' in window)) return;
         playButton.addEventListener('click', startSpeech);
-        pauseButton.addEventListener('click', togglePauseSpeech);
-        stopButton.addEventListener('click', stopSpeech); // Direct call to the modified stopSpeech
+        pauseButton.addEventListener('click', togglePauseSpeech); // Add log inside if needed
+        stopButton.addEventListener('click', () => stopSpeech(false)); // Explicitly pass false for user action
         if (speechSynth.getVoices().length > 0) updateSpeechButtonsState();
         else speechSynth.onvoiceschanged = updateSpeechButtonsState;
     }
 
-    // --- Core TTS Control Functions (Chunking Logic) ---
+    // --- Core TTS Control Functions ---
     function startSpeech() {
         if (isSpeaking || !chapterChunks.length) return;
-        stopSpeech(true); // Ensure clean state
-        console.log("Starting speech from chunk 0");
+        stopSpeech(true);
+        console.log("[TTS DEBUG] Starting speech from chunk 0");
         isSpeaking = true;
         currentChunkIndex = 0;
-        updateSpeechButtonsState(); // Show Pause/Stop
+        updateSpeechButtonsState();
         speakChunk(currentChunkIndex);
     }
 
     function speakChunk(index) {
         if (index < 0 || index >= chapterChunks.length || !isSpeaking) {
-             console.log("speakChunk: Halting - Index out of bounds or not speaking.");
-            // If we somehow get here inappropriately, stop might already be called,
-            // but calling again ensures cleanup and button reset.
-             stopSpeech(true);
+             console.log(`[TTS DEBUG] speakChunk(${index}) aborted: Conditions not met (isSpeaking=${isSpeaking})`);
+             if(isSpeaking) stopSpeech(true); // Force cleanup if isSpeaking somehow still true
             return;
         }
         const chunk = chapterChunks[index];
         if (!chunk || !chunk.text) {
-             console.warn(`speakChunk: Skipping empty chunk at index ${index}.`);
-             currentChunkIndex++; speakChunk(currentChunkIndex); // Try next immediately
+             console.warn(`[TTS DEBUG] speakChunk(${index}): Skipping empty chunk.`);
+             currentChunkIndex++; speakChunk(currentChunkIndex);
              return;
         }
          if(chunk.element) chunk.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         currentUtterance = new SpeechSynthesisUtterance(chunk.text);
-         // Apply Voice Settings (same as before)
-          const voices = speechSynth.getVoices(); const preferredVoices = ['Google US English', 'Microsoft David - English (United States)', 'Alex', 'Samantha', 'Karen'];
-          let selectedVoice = voices.find(voice => preferredVoices.includes(voice.name) && voice.lang.startsWith('en')) || voices.find(voice => voice.lang.startsWith('en'));
-          if (selectedVoice) { currentUtterance.voice = selectedVoice; currentUtterance.rate = 1.05; currentUtterance.pitch = 1.0; } else console.warn(`No suitable English voice for chunk ${index}.`);
+         // Apply Voice Settings
+        const voices = speechSynth.getVoices(); const preferredVoices = ['Google US English', 'Microsoft David - English (United States)', 'Alex', 'Samantha', 'Karen'];
+        let selectedVoice = voices.find(voice => preferredVoices.includes(voice.name) && voice.lang.startsWith('en')) || voices.find(voice => voice.lang.startsWith('en'));
+        if (selectedVoice) { currentUtterance.voice = selectedVoice; currentUtterance.rate = 1.05; currentUtterance.pitch = 1.0; }
+        else { console.warn(`[TTS DEBUG] No suitable English voice found for chunk ${index}.`); }
 
         currentUtterance.onboundary = (event) => {
-            // Boundary handling for word highlighting (same as before)
+             // --- Highlighting Logic (No changes needed here unless severe lag) ---
             if (event.name !== 'word' || !isSpeaking || !chunk.element || currentChunkIndex !== index) return;
-             removeWordHighlight();
-             let spokenCharIndex = event.charIndex;
-             const textUnits = chunk.element.querySelectorAll('.speech-text-unit');
-             let cumulativeLength = 0; let foundUnit = null;
-              for (let i = 0; i < textUnits.length; i++) { /* ... (exact same logic as before to find foundUnit) ... */
-                  const unit = textUnits[i]; const precedingNode = unit.previousSibling;
-                  let precedingWhitespaceLength = (precedingNode && precedingNode.nodeType === Node.TEXT_NODE) ? precedingNode.textContent.length : 0;
-                  const unitLength = unit.textContent.length; const startIndex = cumulativeLength + precedingWhitespaceLength; const endIndex = startIndex + unitLength;
-                   if (spokenCharIndex >= startIndex && spokenCharIndex < endIndex) { foundUnit = unit; break; }
-                   cumulativeLength += precedingWhitespaceLength + unitLength;
-              }
-             if (foundUnit) { foundUnit.classList.add('speaking-word'); lastSpokenWordSpan = foundUnit; }
+            removeWordHighlight(); // Clear previous word
+            let spokenCharIndex = event.charIndex;
+            const textUnits = chunk.element.querySelectorAll('.speech-text-unit');
+            let cumulativeLength = 0; let foundUnit = null;
+            for (let i = 0; i < textUnits.length; i++) {
+                const unit = textUnits[i]; const precedingNode = unit.previousSibling;
+                let precedingWhitespaceLength = (precedingNode && precedingNode.nodeType === Node.TEXT_NODE) ? precedingNode.textContent.length : 0;
+                const unitLength = unit.textContent.length; const startIndex = cumulativeLength + precedingWhitespaceLength; const endIndex = startIndex + unitLength;
+                if (spokenCharIndex >= startIndex && spokenCharIndex < endIndex) { foundUnit = unit; break; }
+                cumulativeLength += precedingWhitespaceLength + unitLength;
+            }
+            if (foundUnit) {
+                foundUnit.classList.add('speaking-word');
+                lastSpokenWordSpan = foundUnit;
+                // console.log(`[TTS DEBUG] Highlight boundary: index ${spokenCharIndex}, word: "${foundUnit.textContent}"`); // Optional intense debug
+            }
+            // else { console.log(`[TTS DEBUG] Highlight boundary: index ${spokenCharIndex}, no unit found.`); } // Optional intense debug
         };
 
         currentUtterance.onend = () => {
-             console.log(`Finished chunk ${index}`);
+            // Need to check the MASTER isSpeaking flag again, as stopSpeech() might have been called
+            // between when the synth finished and this event fires.
+             console.log(`[TTS DEBUG] onend received for chunk ${index}. isSpeaking=${isSpeaking}, currentChunkIndex=${currentChunkIndex}`);
              removeWordHighlight();
-              // Check *master* flag before proceeding
-             if (isSpeaking && currentChunkIndex === index) {
+             if (isSpeaking && currentChunkIndex === index) { // Only proceed if still actively speaking *this* chunk
                  currentChunkIndex++;
                  if (currentChunkIndex < chapterChunks.length) {
                      speakChunk(currentChunkIndex);
                  } else {
-                     console.log("Finished all chunks.");
-                     stopSpeech(true); // All done, final cleanup
+                     console.log("[TTS DEBUG] Finished all chunks normally.");
+                     stopSpeech(true); // All done, cleanup
                  }
              } else {
-                 console.log(`onend for chunk ${index} ignored: isSpeaking=${isSpeaking}, currentChunkIndex=${currentChunkIndex}`);
+                  console.log(`[TTS DEBUG] onend for chunk ${index} ignored or race condition detected.`);
+                  // Don't try to speak next chunk if isSpeaking is false or index changed
              }
         };
 
         currentUtterance.onerror = (event) => {
-             console.error(`TTS error on chunk ${index}:`, event.error);
+             console.error(`[TTS DEBUG] TTS error on chunk ${index}:`, event.error);
              removeWordHighlight();
-              if (isSpeaking && currentChunkIndex === index) { // Try to recover if still active
+              if (isSpeaking && currentChunkIndex === index) { // Try to recover if we are still supposed to be speaking this chunk
                  currentChunkIndex++;
                  if (currentChunkIndex < chapterChunks.length) {
-                     console.log("Attempting to skip to next chunk after error.");
+                     console.log("[TTS DEBUG] Attempting to skip to next chunk after error.");
                      speakChunk(currentChunkIndex);
                  } else {
                      stopSpeech(true); // Error on last chunk
@@ -296,86 +254,133 @@ document.addEventListener('DOMContentLoaded', function() {
              }
         };
 
+        // Assign the utterance before speaking, makes pause/stop logic simpler
+        // currentUtterance is already assigned above
+        console.log(`[TTS DEBUG] Attempting to speak chunk ${index}. Length: ${chunk.text.length}`);
         speechSynth.speak(currentUtterance);
-        console.log(`Speaking chunk ${index}: "${chunk.text.substring(0, 50)}..."`);
-    }
 
-    function togglePauseSpeech() {
-         // Pause/Resume Logic (same as before)
-         if (!isSpeaking || !currentUtterance) return;
-         if (speechSynth.paused) {
-             console.log("Resuming speech"); removeParagraphHighlight(); speechSynth.resume(); updateSpeechButtonsState();
-         } else if (speechSynth.speaking) {
-             console.log("Pausing speech"); removeWordHighlight(); speechSynth.pause(); updateSpeechButtonsState();
-             if (currentChunkIndex >= 0 && currentChunkIndex < chapterChunks.length) { const currentChunkElement = chapterChunks[currentChunkIndex]?.element; if (currentChunkElement) { setTimeout(() => { if(speechSynth.paused) { highlightPausedParagraph(currentChunkElement); } }, 50); } }
-         }
-    }
-
-    // --- MODIFIED Stop Speech Logic ---
-    function stopSpeech(isInternalCleanup = false) {
-         // 1. Log the action context
-        console.log("Stop Speech Triggered.", isInternalCleanup ? "(Internal Cleanup / End of chapter)" : "(User Action)");
-
-         // 2. Immediately set state flags to prevent further action
-         const wasSpeaking = isSpeaking; // Store previous state for logging
-         isSpeaking = false; // *** Set master flag immediately ***
-         currentChunkIndex = -1; // Reset index
-
-          // 3. Grab reference to utterance BEFORE nulling the main var
-         const utteranceToCancel = currentUtterance;
-         currentUtterance = null;
-
-         // 4. Clean up the synthesizer
-         if (speechSynth) {
-             // Remove listeners attached to the specific utterance we are cancelling
-             if (utteranceToCancel) {
-                 utteranceToCancel.onboundary = null;
-                 utteranceToCancel.onend = null;
-                 utteranceToCancel.onerror = null;
-                  // console.log("Removed listeners from utterance being cancelled.");
+        // *** ADD Mobile Debug: Check if speaking starts ***
+        setTimeout(() => {
+            if (isSpeaking && currentChunkIndex === index && !speechSynth.speaking && !speechSynth.pending) {
+                 console.warn(`[TTS DEBUG] Mobile check: Synth may not have started speaking chunk ${index} properly.`);
+                 // Consider potentially trying to advance or stop if this state persists
              }
-              // Cancel any current or pending speech in the browser queue
-              speechSynth.cancel();
-             console.log("Called speechSynth.cancel()");
-         }
+        }, 300); // Check after a short delay
+    }
 
-         // 5. Clean up visual state
-         removeHighlighting(); // Clean up word and paragraph highlights
+    // --- MODIFIED Pause / Resume Logic with Mobile Debugging ---
+    function togglePauseSpeech() {
+        console.log(`[TTS DEBUG] togglePauseSpeech called. isSpeaking=${isSpeaking}. Current synth state: speaking=${speechSynth.speaking}, paused=${speechSynth.paused}, pending=${speechSynth.pending}`);
 
-          // 6. *** Unconditionally reset button visuals to idle state ***
-         resetSpeechButtonsVisuals();
+        if (!isSpeaking || currentChunkIndex < 0) {
+            console.warn("[TTS DEBUG] togglePauseSpeech: Ignored, not in a speaking state or no chunk active.");
+            return;
+        }
 
-         // 7. Log outcome (optional)
-         if (wasSpeaking && !isInternalCleanup) { console.log("Speech actively stopped by user."); }
-         else if (!wasSpeaking && !isInternalCleanup) { console.log("Stop button clicked, but was not actively speaking."); }
-         else { console.log("Stop triggered via internal cleanup."); }
-     }
+        if (speechSynth.speaking && !speechSynth.paused) {
+            // --- PAUSING ---
+            console.log("[TTS DEBUG] Attempting to PAUSE...");
+            removeWordHighlight(); // Remove word highlight immediately
 
-    // --- Highlighting Helpers --- (same as before)
+            speechSynth.pause(); // Try to pause
+
+            // *** ADD Mobile Debug: Check state *after* calling pause ***
+            // Use setTimeout to allow state change to potentially propagate
+             setTimeout(() => {
+                  console.log(`[TTS DEBUG] State after pause attempt: speaking=${speechSynth.speaking}, paused=${speechSynth.paused}`);
+                  if (speechSynth.paused) { // Only update UI and highlight IF pause succeeded
+                       console.log("[TTS DEBUG] Pause successful.");
+                       updateSpeechButtonsState();
+                       // Highlight paragraph
+                       const currentChunkElement = chapterChunks[currentChunkIndex]?.element;
+                       if (currentChunkElement) highlightPausedParagraph(currentChunkElement);
+                  } else {
+                       console.warn("[TTS DEBUG] Mobile Warning: Pause command may not have worked as expected!");
+                       // Force UI update based on *actual* state just in case
+                        updateSpeechButtonsState();
+                  }
+             }, 100); // Small delay (adjust if needed)
+
+        } else if (speechSynth.paused) {
+            // --- RESUMING ---
+            console.log("[TTS DEBUG] Attempting to RESUME...");
+            removeParagraphHighlight(); // Remove pause highlight first
+
+            speechSynth.resume();
+
+             // *** ADD Mobile Debug: Check state *after* calling resume ***
+             setTimeout(() => {
+                 console.log(`[TTS DEBUG] State after resume attempt: speaking=${speechSynth.speaking}, paused=${speechSynth.paused}`);
+                  if (!speechSynth.paused && speechSynth.speaking) { // Check if resume appears successful
+                       console.log("[TTS DEBUG] Resume successful.");
+                       updateSpeechButtonsState(); // Reflect playing state
+                  } else {
+                       console.warn("[TTS DEBUG] Mobile Warning: Resume command may not have worked as expected!");
+                       updateSpeechButtonsState(); // Update UI based on actual state
+                  }
+             }, 100);
+
+        } else {
+             console.log("[TTS DEBUG] togglePauseSpeech: No action taken (synth not speaking or paused?).");
+             // Could be pending, or just stopped. Update UI based on current state.
+             updateSpeechButtonsState();
+        }
+    }
+
+    // --- Stop Speech Logic --- (remains the same robust version)
+    function stopSpeech(isInternalCleanup = false) {
+        console.log("[TTS DEBUG] Stop Speech Triggered.", isInternalCleanup ? "(Internal Cleanup / End of chapter)" : "(User Action)");
+        const wasSpeaking = isSpeaking;
+        isSpeaking = false;
+        currentChunkIndex = -1;
+        const utteranceToCancel = currentUtterance;
+        currentUtterance = null;
+        if (speechSynth) {
+            if (utteranceToCancel) { utteranceToCancel.onboundary = null; utteranceToCancel.onend = null; utteranceToCancel.onerror = null; }
+            speechSynth.cancel();
+            // console.log("[TTS DEBUG] Called speechSynth.cancel()");
+        }
+        removeHighlighting();
+        resetSpeechButtonsVisuals();
+        // Optional log moved or removed for cleanliness
+    }
+
+    // --- Highlighting Helpers --- (remain the same)
     function removeHighlighting() { removeWordHighlight(); removeParagraphHighlight(); }
     function removeWordHighlight() { if (lastSpokenWordSpan) { lastSpokenWordSpan.classList.remove('speaking-word'); lastSpokenWordSpan = null; } document.querySelectorAll('.speaking-word').forEach(el => el.classList.remove('speaking-word')); }
     function removeParagraphHighlight() { if (pausedParagraphElement) { pausedParagraphElement.classList.remove('highlighted-text'); pausedParagraphElement = null; } document.querySelectorAll('.highlighted-text').forEach(el => el.classList.remove('highlighted-text')); }
     function highlightPausedParagraph(element) { removeParagraphHighlight(); if (element) { element.classList.add('highlighted-text'); pausedParagraphElement = element; } }
 
-    // --- Speech Button State Management --- (same as before)
+    // --- Speech Button State Management ---
     function updateSpeechButtonsState() {
-         const canSpeak = ('speechSynthesis' in window) && chapterChunks.length > 0;
-         playButton.style.display = (!isSpeaking && canSpeak) ? 'flex' : 'none';
-         pauseButton.style.display = (isSpeaking && canSpeak) ? 'flex' : 'none';
-         stopButton.style.display = (isSpeaking && canSpeak) ? 'flex' : 'none';
-          if (isSpeaking && speechSynth.paused) { pauseButtonIcon.classList.remove('fa-pause-circle'); pauseButtonIcon.classList.add('fa-play-circle'); }
-          else { pauseButtonIcon.classList.remove('fa-play-circle'); pauseButtonIcon.classList.add('fa-pause-circle'); }
-     }
+        const canSpeak = ('speechSynthesis' in window) && chapterChunks.length > 0 && currentChapterId !== null;
+        const isSynthPaused = speechSynth.paused; // Check actual synth state
 
-    // Reset buttons to the initial 'Play' state (visually) - NO change here needed
-     function resetSpeechButtonsVisuals() {
-        const canSpeak = ('speechSynthesis' in window) && chapterChunks.length > 0 && currentChapterId !== null; // Ensure content is loaded too
+        // Determine button visibility based on capability and *intended* state (isSpeaking)
+        playButton.style.display = (!isSpeaking && canSpeak) ? 'flex' : 'none';
+        pauseButton.style.display = (isSpeaking && canSpeak) ? 'flex' : 'none';
+        stopButton.style.display = (isSpeaking && canSpeak) ? 'flex' : 'none';
+
+        // Determine pause/play icon based on the *actual* synth state IF we intend to be speaking
+        if (isSpeaking && isSynthPaused) {
+            pauseButtonIcon.classList.remove('fa-pause-circle');
+            pauseButtonIcon.classList.add('fa-play-circle'); // Show play icon
+        } else {
+            pauseButtonIcon.classList.remove('fa-play-circle');
+            pauseButtonIcon.classList.add('fa-pause-circle'); // Show pause icon
+        }
+        // console.log(`[TTS DEBUG] updateSpeechButtonsState: canSpeak=${canSpeak}, isSpeaking=${isSpeaking}, isSynthPaused=${isSynthPaused}`); // Optional debug
+    }
+
+    function resetSpeechButtonsVisuals() {
+        const canSpeak = ('speechSynthesis' in window) && chapterChunks.length > 0 && currentChapterId !== null;
         playButton.style.display = canSpeak ? 'flex' : 'none';
         pauseButton.style.display = 'none';
         stopButton.style.display = 'none';
         pauseButtonIcon.classList.remove('fa-play-circle');
         pauseButtonIcon.classList.add('fa-pause-circle');
-     }
+        // console.log(`[TTS DEBUG] resetSpeechButtonsVisuals: canSpeak=${canSpeak}`); // Optional debug
+    }
 
     // --- Start the Application ---
     initApplication();
